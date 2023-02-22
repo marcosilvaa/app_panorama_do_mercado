@@ -1,3 +1,4 @@
+# Importando bibliotecas
 import pandas as pd
 import streamlit as st
 import numpy as np
@@ -7,48 +8,124 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+    #Criando funções que vão imprimir o conteúdo na tela.
+    #Cada uma referente à uma determinada página que posteriormente,
+    #serão chamadas através da barra de menu lateral.
 
 
-#Criando funções que vão imprimir o conteúdo na tela.
-#Cada uma referente à uma determinada página que posteriormente,
-#serão chamadas através da barra de menu lateral.
-
-
-#Home -> Página inicial
+    #Home -> Página inicial
 def home():
     col1,col2,col3 = st.columns(3)
     with col2:
         st.sidebar.markdown("---")
         st.title("App Financeiro")
 
-#Panorama -> Screener dos principais ativos e índices do mercado
+    #Panorama -> Screener dos principais ativos e índices do mercado
 def panorama():
     st.title("Panorama Do Mercado")
     st.markdown(date.today().strftime("%d/%m/%Y"))
     st.markdown("---")
-    st.subheader("Mercados pelo Mundo")
+    st.subheader("Índices")
 
-    dict_tickers = {
-        "Bovespa" : "^BVSP",
+    # Criando Dicionários para cara classe de ativo
+
+    #Dicionário de Índices
+    index_tck = {
+        "Crypto200":"^CMC200",
+        "DXY": "DX-Y.NYB",
         "S&P500" : "^GSPC",
+        "Volatility":"^VIX",
         "NASDAQ" : "^IXIC",
-        "DAX" : "^GDAXI",
+        "NYSE":"^NYA",
         "FTSE 100" : "^FTSE",
-        "CRUDE OIL" : "CL=F",
-        "GOLD" : "GC=F",
-        "BITCOIN" : "BTC-USD",
-        "ETHEREUM" : "ETH-USD",
         "Dow Jones Industrial":"^DJI",
         "Dow Jones Transportes": "^DJT",
-        "HANG SENG": "^HSI"
-
+        "HANG SENG": "^HSI",
+        "Nikkei 225": "^N225",
+        "DAX": "^GDAXI",
+        "Bovespa": "^BVSP",
     }
-    #Criando dataframe para armazenar os valores de cada item que serão coletados posteriormente
-    df_info = pd.DataFrame({"Ativo": dict_tickers.keys(),
-                            "Ticker": dict_tickers.values()})
-    #Criando as colunas onde serão armazenados os valores
-    df_info["Ult.Valor"]= " "
-    df_info["%"] =" "
+
+    #Dicionário de Criptomoedas
+    crypto_tck = {
+        "BITCOIN": "BTC-USD",
+        "ETHEREUM": "ETH-USD",
+        "POLYGON": "MATIC-USD",
+        "CHAINLINK": "LINK-USD",
+        "GMX": "GMX-USD",
+        "SYNTHETIX": "SNX-USD",
+        "SINGULARITY DAO": "SDAO-USD",
+        "NUNET": "NTX-USD",
+        "POLKADOT":"DOT-USD",
+    }
+
+    #Dicionário de Juros
+    yeld_tck = {
+        "13 Week Treasury Bill":"^IRX",
+        "5 Years Yeld":"^FVX",
+        "10 Years Yeld": "^TNX",
+        "30 Years Yeld": "^TYX",
+    }
+
+    #Dicionário de Empresas Americanas
+    stocks_tck = {
+        "AAPL": "Apple",
+        "MSFT": "Microsoft",
+        "GOOGL": "Alphabet",
+        "AMZN": "Amazon",
+        "TSLA": "Tesla",
+        "NVDA": "NVIDIA",
+        "XOM": "Exxon Mobil",
+        "META": "Meta Plataforms",
+        "BAC": "Bank of America",
+        "BABA": "Alibaba",
+    }
+
+    # Dicionário de CÂMBIO
+    currency_tck = {
+        "BRLUSD=X": "BRL/USD",
+        "EURUSD=X": "EUR/USD",
+        "GBPUSD=X": "GBP/USD",
+        "BRLEUR=X": "BRL/EUR",
+        "BRLGBP=X": "BRL/GBP",
+    }
+
+    # Dicionário de Commodities
+    commodity_tck = {
+        "CRUDE OIL": "CL=F",
+        "OURO": "GC=F",
+        "PRATA": "SI=F",
+        "SOJA": "ZS=F",
+        "MILHO": "ZC=F",
+    }
+
+
+    #Criando dataframe para armazenar as cotacoes de cada item que serão coletados posteriormente
+    #Criando as colunas onde serão armazenados os valores e a variação %
+
+    # dataframe para Index
+    df_index = pd.DataFrame({"Ativo": index_tck.keys(),
+                             "Ticker": index_tck.values()})
+    df_index["Ult.Valor"] = " "
+    df_index["%"] = " "
+
+    # dataframe para Crypto
+    df_crypto = pd.DataFrame({"Ativo": crypto_tck.keys(),
+                             "Ticker": crypto_tck.values()})
+    df_crypto["Ult.Valor"] = " "
+    df_crypto["%"] = " "
+
+    # dataframe para Stocks
+    df_stocks = pd.DataFrame({"Ativo": stocks_tck.keys(),
+                             "Ticker": stocks_tck.values()})
+    df_stocks["Ult.Valor"] = " "
+    df_stocks["%"] = " "
+
+    # dataframe para Commodity
+    df_commodity = pd.DataFrame({"Ativo": commodity_tck.keys(),
+                             "Ticker": commodity_tck.values()})
+    df_commodity["Ult.Valor"] = " "
+    df_commodity["%"] = " "
 
     #Imprimindo na tela mensagem "Carregando"
     with st.spinner("Coletando Cotações"):
@@ -56,55 +133,160 @@ def panorama():
         #Criando loop para download dos dados
         #Utilizando a biblioteca YFinance vamos fazer o download para cada item do dicionário
         count = 0
-        for ticker in dict_tickers.values():
+        for ticker in index_tck.values():
            cotacoes = yf.download(ticker,period="1mo",auto_adjust=True)["Close"]
            variacao = ((cotacoes.iloc[-1]/cotacoes.iloc[-2])-1)*100
-           df_info["Ult.Valor"][count] = round(cotacoes.iloc[-1],2)
-           df_info["%"][count] = round(variacao,2)
+           df_index["Ult.Valor"][count] = round(cotacoes.iloc[-1],2)
+           df_index["%"][count] = round(variacao,2)
            count += 1
 
-    #Criando colunas na tela para exibir o valor de cada índice e a variação % do dia
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric(df_info["Ativo"][0], df_info["Ult.Valor"][0], delta=str(df_info["%"][0]) + "%")
-        st.metric(df_info["Ativo"][1], df_info["Ult.Valor"][1], delta=str(df_info["%"][1])+ "%")
-        st.metric(df_info["Ativo"][2], df_info["Ult.Valor"][2], delta=str(df_info["%"][2])+ "%")
-        st.metric(df_info["Ativo"][3], df_info["Ult.Valor"][3], delta=str(df_info["%"][3])+ "%")
+        count=0
+        for ticker in crypto_tck.values():
+            cotacoes = yf.download(ticker, period="1mo", auto_adjust=True)["Close"]
+            variacao = ((cotacoes.iloc[-1] / cotacoes.iloc[-2]) - 1) * 100
+            df_crypto["Ult.Valor"][count] = round(cotacoes.iloc[-1], 3)
+            df_crypto["%"][count] = round(variacao, 2)
+            count += 1
 
+        count=0
+        for ticker in commodity_tck.values():
+            cotacoes = yf.download(ticker, period="1mo", auto_adjust=True)["Close"]
+            variacao = ((cotacoes.iloc[-1] / cotacoes.iloc[-2]) - 1) * 100
+            df_commodity["Ult.Valor"][count] = round(cotacoes.iloc[-1], 3)
+            df_commodity["%"][count] = round(variacao, 2)
+            count += 1
+
+
+    # PLOTANDO INDICES
+    #Criando colunas na tela para exibir o valor de cada índice e a variação % do dia
+    #st.write(df_index)
+
+    col1, col2, col3,col4 = st.columns(4)
+
+    # Crypto200 - NASDAQ - HANG SENG
+    with col1:
+        st.metric(df_index["Ativo"][0], df_index["Ult.Valor"][0], delta=str(df_index["%"][0]) + "%")
+        st.metric(df_index["Ativo"][4], df_index["Ult.Valor"][4], delta=str(df_index["%"][4]) + "%")
+        st.metric(df_index["Ativo"][9], df_index["Ult.Valor"][9], delta=str(df_index["%"][9]) + "%")
+
+    #
     with col2:
-        st.metric(df_info["Ativo"][4], df_info["Ult.Valor"][4], delta=str(df_info["%"][4])+ "%")
-        st.metric(df_info["Ativo"][5], df_info["Ult.Valor"][5], delta=str(df_info["%"][5])+ "%")
-        st.metric(df_info["Ativo"][6], df_info["Ult.Valor"][6], delta=str(df_info["%"][6])+ "%")
-        st.metric(df_info["Ativo"][7], df_info["Ult.Valor"][7], delta=str(df_info["%"][7])+ "%")
+        st.metric(df_index["Ativo"][1], df_index["Ult.Valor"][1], delta=str(df_index["%"][1]) + "%")
+        st.metric(df_index["Ativo"][5], df_index["Ult.Valor"][5], delta=str(df_index["%"][5]) + "%")
+        st.metric(df_index["Ativo"][11], df_index["Ult.Valor"][11], delta=str(df_index["%"][11]) + "%")
+
 
     with col3:
-        st.metric(df_info["Ativo"][8], df_info["Ult.Valor"][8], delta=str(df_info["%"][8])+ "%")
-        st.metric(df_info["Ativo"][9], df_info["Ult.Valor"][9], delta=str(df_info["%"][9])+ "%")
-        st.metric(df_info["Ativo"][10], df_info["Ult.Valor"][10], delta=str(df_info["%"][10])+ "%")
-        st.metric(df_info["Ativo"][11], df_info["Ult.Valor"][11], delta=str(df_info["%"][11])+ "%")
+        st.metric(df_index["Ativo"][2], df_index["Ult.Valor"][2], delta=str(df_index["%"][2]) + "%")
+        st.metric(df_index["Ativo"][6], df_index["Ult.Valor"][6], delta=str(df_index["%"][6]) + "%")
+        st.metric(df_index["Ativo"][10], df_index["Ult.Valor"][10], delta=str(df_index["%"][10]) + "%")
+
+
+    with col4:
+        st.metric(df_index["Ativo"][3], df_index["Ult.Valor"][3], delta=str(df_index["%"][3]) + "%")
+        st.metric(df_index["Ativo"][7], df_index["Ult.Valor"][7], delta=str(df_index["%"][7]) + "%")
+        st.metric(df_index["Ativo"][12], df_index["Ult.Valor"][12], delta=str(df_index["%"][12]) + "%")
+
+    st.markdown("---")
+    st.subheader("Criptomoedas")
+
+    #PLOTANDO CRIPTOS
+    #Criando colunas na tela para exibir o valor de cada índice e a variação % do dia
+    #st.write(df_crypto)
+
+    col1, col2, col3 = st.columns(3)
+
+    # Crypto200 - NASDAQ - HANG SENG
+    with col1:
+        st.metric(df_crypto["Ativo"][0], df_crypto["Ult.Valor"][0], delta=str(df_crypto["%"][0]) + "%")
+        st.metric(df_crypto["Ativo"][8], df_crypto["Ult.Valor"][8], delta=str(df_crypto["%"][8]) + "%")
+
+    #
+    with col2:
+        st.metric(df_crypto["Ativo"][1], df_crypto["Ult.Valor"][1], delta=str(df_crypto["%"][1]) + "%")
+        st.metric(df_crypto["Ativo"][5], df_crypto["Ult.Valor"][5], delta=str(df_crypto["%"][5]) + "%")
+
+
+    with col3:
+        st.metric(df_crypto["Ativo"][2], df_crypto["Ult.Valor"][2], delta=str(df_crypto["%"][2]) + "%")
+        st.metric(df_crypto["Ativo"][6], df_crypto["Ult.Valor"][6], delta=str(df_crypto["%"][6]) + "%")
 
     st.markdown("---")
 
     st.subheader("Gráfico")
+    tab1, tab2, tab5, tab6 = st.tabs(["Índices", "Criptomoedas", "Yeld","Commodities"])
 
-    #Criando caixa com os nomes dos papeis
-    indice_selecionado = st.selectbox("Selecione o Índice",dict_tickers.keys())
+    with tab1:
+        #Criando caixa com os nomes dos papeis
+        indice_selecionado = st.selectbox("Selecione o Índice",index_tck.keys())
 
-    for ticker in dict_tickers.keys():
-        if not ticker == indice_selecionado:
-            pass
-        else:
-            indice_diario = yf.download(dict_tickers.get(indice_selecionado), period="60d", interval="1d")
+        for ticker in index_tck.keys():
+            if not ticker == indice_selecionado:
+                pass
+            else:
+                indice_diario = yf.download(index_tck.get(indice_selecionado), period="60d", interval="1d")
 
-    fig = go.Figure(data=[go.Candlestick(x=indice_diario.index,
-                                              open = indice_diario["Open"],
-                                              high=indice_diario["High"],
-                                              low=indice_diario["Low"],
-                                              close=indice_diario["Close"])])
-    fig.update_layout(title=indice_selecionado, xaxis_rangeslider_visible=False)
+        fig = go.Figure(data=[go.Candlestick(x=indice_diario.index,
+                                                  open = indice_diario["Open"],
+                                                  high=indice_diario["High"],
+                                                  low=indice_diario["Low"],
+                                                  close=indice_diario["Close"])])
+        fig.update_layout(title=indice_selecionado, xaxis_rangeslider_visible=False)
 
 
-    st.plotly_chart(fig)
+        st.plotly_chart(fig)
+    with tab2:
+        #Criando caixa com os nomes dos papeis
+        indice_selecionado = st.selectbox("Selecione a Criptomoeda",crypto_tck.keys())
+
+        for ticker in crypto_tck.keys():
+            if not ticker == indice_selecionado:
+                pass
+            else:
+                indice_diario = yf.download(crypto_tck.get(indice_selecionado), period="60d", interval="1d")
+
+        fig = go.Figure(data=[go.Candlestick(x=indice_diario.index,
+                                                  open = indice_diario["Open"],
+                                                  high=indice_diario["High"],
+                                                  low=indice_diario["Low"],
+                                                  close=indice_diario["Close"])])
+        fig.update_layout(title=indice_selecionado, xaxis_rangeslider_visible=False)
+        st.plotly_chart(fig)
+
+    with tab5:
+        #Criando caixa com os nomes dos papeis
+        indice_selecionado = st.selectbox("Selecione o Juro",yeld_tck.keys())
+
+        for ticker in yeld_tck.keys():
+            if not ticker == indice_selecionado:
+                pass
+            else:
+                indice_diario = yf.download(yeld_tck.get(indice_selecionado), period="60d", interval="1d")
+
+        fig = go.Figure(data=[go.Candlestick(x=indice_diario.index,
+                                                  open = indice_diario["Open"],
+                                                  high=indice_diario["High"],
+                                                  low=indice_diario["Low"],
+                                                  close=indice_diario["Close"])])
+        fig.update_layout(title=indice_selecionado, xaxis_rangeslider_visible=False)
+        st.plotly_chart(fig)
+    with tab6:
+        #Criando caixa com os nomes dos papeis
+        indice_selecionado = st.selectbox("Selecione a Commoditie",commodity_tck.keys())
+
+        for ticker in commodity_tck.keys():
+            if not ticker == indice_selecionado:
+                pass
+            else:
+                indice_diario = yf.download(commodity_tck.get(indice_selecionado), period="60d", interval="1d")
+
+        fig = go.Figure(data=[go.Candlestick(x=indice_diario.index,
+                                                  open = indice_diario["Open"],
+                                                  high=indice_diario["High"],
+                                                  low=indice_diario["Low"],
+                                                  close=indice_diario["Close"])])
+        fig.update_layout(title=indice_selecionado, xaxis_rangeslider_visible=False)
+        st.plotly_chart(fig)
     st.markdown("---")
 
 #Mapa Mensal -> Mostrar retornos de algum ativo selecionado
@@ -113,26 +295,6 @@ def mapa_mensal():
     st.markdown("---")
     tab1, tab2, tab3 = st.tabs(["Bitcoin", "S&P500", "DXY"])
 
-
-
-    #with st.expander("", expanded=True):
-    #   opcao = st.radio("Escolha",["Indice","Criptos"])
-
-    #if opcao == "Indice":
-    #    with st.form(key="form_indice"):
-    #        ticker = st.selectbox("Indice", ["Bovespa", "Financials", "Basic Materials"])
-    #        analisar = st.form_submit_button("Analisar")
-    #else:
-    #    with st.form(key="form_criptos"):
-    #        ticker = st.selectbox("Criptos", ["BTC", "ETH", "ADA"])
-    #        analisar = st.form_submit_button("Analisar")
-
-    #if analisar:
-    #    data_inicial = "01/12/1999"
-    #    data_final = "31/12/2023"
-
-    #    if opcao == "Criptos":
-    #        retornos = yf.download(ticker+"-USD", period="max")["Close"].pct_change()
     with tab1:
 
         #importando dados de preço do BITCOIN e definindo a data como o índice
