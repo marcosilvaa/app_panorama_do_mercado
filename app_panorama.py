@@ -336,7 +336,7 @@ def mapa_mensal(option):
         fig = px.imshow(stats_a, text_auto=True, aspect="auto",color_continuous_scale=[[0, 'red'], [0.12, 'yellow'], [1.0, 'green']])
         fig.update_layout(width=900, height=400, font_size=200)
         fig.update_layout(font_size=200)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig,use_container_width=True)
         
         st.markdown("---")
 
@@ -353,9 +353,9 @@ def mapa_mensal(option):
         stats_b = stats[["Positivos", "Negativos"]]
         
         #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
-        st.subheader("Positivo X Negativo - Mensal (%) ")
+        st.subheader("Meses Positivos X Negativo - (%) ")
         fig = px.bar(stats_b, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
 
 
     
