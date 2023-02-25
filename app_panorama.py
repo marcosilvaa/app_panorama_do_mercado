@@ -284,131 +284,77 @@ def mapa_mensal(option):
         # Criando coluna para armazenar a variação percentual do preço
         btc_mensal['%'] = (btc_mensal['Price'].pct_change() * 100).round(2)
         
-        #btc_mensal = btc_mensal['%']
-        #st.write("btc_mensal")
-        #st.write(btc_mensal)
-        
-        
-
-        # Criando dataframe com o ano e o mês
-        #retorno_mensal = btc_mensal.groupby([btc_mensal.index.year.rename("Year"), btc_mensal.index.month.rename("Month")]).sum()
-       
-        #st.write("retorno_mensal")
-        #st.write(retorno_mensal)
-        
-        
-        #tabela_retornos = retorno_mensal.copy()
-        #st.write("tabela_retornos,,,")
-        #st.write(tabela_retornos)
-
-
         # Selecionando a coluna % do objeto btc_mensal
-        btc_mensal_percent = btc_mensal['%']
-
+        btc_percent = pd.DataFrame(btc_mensal['%'])
+        
         # Agrupando por ano e mês e somando os valores da coluna %
-        retorno_mensal = btc_mensal_percent.groupby([btc_mensal_percent.index.year.rename("Year"), btc_mensal_percent.index.month.rename("Month")]).sum()
-
-        # Criando dataframe com o retorno mensal
+        retorno_mensal = btc_percent.groupby(
+            [btc_percent.index.year.rename("Year"), btc_percent.index.month.rename("Month")]).sum()
+        
         df_retorno_mensal = pd.DataFrame(retorno_mensal)
-
+        
         # Transformando o índice em colunas
         df_retorno_mensal.reset_index(inplace=True)
-
-        # Convertendo as colunas Year e Month para datetime
-        df_retorno_mensal['Year_Month'] = pd.to_datetime(df_retorno_mensal['Year'].astype(str) + '-' + df_retorno_mensal['Month'].astype(str), format='%Y-%m')
-
-        # Criando tabela com índice=ANO e colunas igual aos MESES
-        tabela_retornos = df_retorno_mensal.pivot_table(values='%', index=df_retorno_mensal['Year'], columns=df_retorno_mensal['Year_Month'].dt.strftime('%b'))
-
-        # Renomeando as colunas com os nomes dos meses abreviados
+        
+        #Transformando dataframe em tabela
+        tabela_retornos = (df_retorno_mensal.pivot_table(values='%',index="Year", columns="Month"))
+        
+        #Definindo o nome das colunas como o nome de cada mês
         tabela_retornos.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
-        # Mostrando a tabela na tela
-        st.write(tabela_retornos)
-
-
-
-        # Criando tabela com indice=ANO e colunas igual aos MESES
-        #tabela_retornos = tabela_retornos.pivot_table(retorno_mensal, values=retorno_mensal["%"], index="Year", columns="Month")
-
-        # Trocando formato do nome dos meses Numero->Nome Abreviado
-        #tabela_retornos.columns = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
-
-        fig = px.imshow(retorno_mensal*100,
-                labels=dict(x="Day of Week", y="Time of Day",),
+        #Plotando HEATMAP com retornos % mensais 
+        st.subheader("Retorno % Mensal")
+        fig = px.imshow(tabela_retornos,
+                labels=dict(x="Mês", y="Ano",),
                 x=tabela_retornos.columns,
                 y=tabela_retornos.index
                )
-        fig = px.imshow(retorno_mensal, text_auto=True, aspect="auto",color_continuous_scale=[[0, 'red'], [0.3, 'yellow'], [1.0, 'green']])
+        fig = px.imshow(tabela_retornos, text_auto=True, aspect="auto",color_continuous_scale=[[0, 'red'], [0.12, 'yellow'], [1.0, 'green']])
         fig.update_layout(width=900, height=900, font_size=200)
         fig.update_layout(font_size=200)
         st.plotly_chart(fig)
 
-    
-    
-    
-    
-    
-        # Criando Heatmap para retornos mensais
-        fig, ax = plt.subplots(figsize=(16, 16))
-        # Definindo paleta de cores
-        cmap = sns.color_palette("RdYlGn", 300)
-        # definindo parametros
-        sns.heatmap(retorno_mensal, cmap=cmap, annot=True, annot_kws={"size": 13}, fmt=".2%", center=0, vmax=0.01, vmin=-0.01, cbar=False,
-                    linewidths=2, xticklabels=True, yticklabels=True, ax=ax, square=True)
-        ax.set_title("Retornos Mensais Bitcoin", fontsize=34)
-        ax.set_yticklabels(ax.get_yticklabels(), rotation=0,
-                            verticalalignment="center", fontsize="16")
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=0,
-                            verticalalignment="center", fontsize="16")
-        plt.ylabel("")
-        st.pyplot(fig)
-
         st.markdown("---")
-
-        # Plotando informações estatísticas
+    
+    
+        # Construindo novo dataframe com as informações estatísticas
         stats = pd.DataFrame(tabela_retornos.mean(), columns=["Média"])
         stats["Mediana"] = tabela_retornos.median()
         stats["Maior"] = tabela_retornos.max()
         stats["Menor"] = tabela_retornos.min()
 
-        stats_a = stats[["Média", "Mediana", "Maior", "Menor"]]
-        stats_a = stats_a.transpose()
-
-        # Criando Heatmap para Estatísticas
-        fig, ax = plt.subplots(figsize=(15, 6))
-        # Definindo paleta de cores
-        cmap = sns.color_palette("RdYlGn", 300)
-        # definindo parametros
-        sns.heatmap(stats_a, cmap=cmap, annot=True, annot_kws={"size": 13}, fmt=".2%", center=0, vmax=0.05, vmin=-0.05, cbar=False,
-                    linewidths=2, xticklabels=True, yticklabels=True, ax=ax, square=True)
-        ax.set_title("Resumo Estatístico", fontsize=24)
-        ax.set_yticklabels(ax.get_yticklabels(), rotation=0,
-                            verticalalignment="center", fontsize="16")
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=0,
-                            verticalalignment="top", fontsize="16")
-        plt.ylabel("")
-        st.pyplot(fig)
+        # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
+        stats_a = stats.transpose().round(2)
         
-   
+        #Plotando HEATMAP com resumo estatístico
+        st.subheader("Resumo Estatístico")
+        fig = px.imshow(stats_a,
+                labels=dict(x="Mês", y="Ano",),
+                x=stats_a.columns,
+                y=stats_a.index
+               )
+        fig = px.imshow(stats_a, text_auto=True, aspect="auto",color_continuous_scale=[[0, 'red'], [0.12, 'yellow'], [1.0, 'green']])
+        fig.update_layout(width=900, height=400, font_size=200)
+        fig.update_layout(font_size=200)
+        st.plotly_chart(fig)
+        
         st.markdown("---")
 
-
+        #Adcionando ao DataFrame ´stats´ coluna Positivos e coluna Negativos
+        
         # Método gt() -> Greater -> Maior que()
-        # Esse método conta quantas vezes o resultado foi maior que, no caso zero.
+        # Esse método busca quantas vezes o resultado foi maior que, no caso zero.
         # método -> sum() vai soamr quantas vezes a condição foi verdadeira, depois é dividido pela quantidade de items da tabela
-        stats["Positivos"] = round(tabela_retornos.gt(
-            0).sum()/tabela_retornos.count()*100)
+        stats["Positivos"] = round(tabela_retornos.gt(0).sum()/tabela_retornos.count()*100)
         # Mesma lógica, porem agora o método le() vai mostrar os itens menores do que zero
-        stats["Negativos"] = round((tabela_retornos.le(
-            0).sum()/tabela_retornos.count())*100)
+        stats["Negativos"] = round((tabela_retornos.le(0).sum()/tabela_retornos.count())*100)
 
+        #criando novo dataframe apenas com essas colunas
         stats_b = stats[["Positivos", "Negativos"]]
- 
         
-        st.subheader("Retorno Mensal Médio")
-        
-        fig = px.bar(stats_b, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'}, title="Retorno Mensal Médio")
+        #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
+        st.subheader("Positivo X Negativo - Mensal (%) ")
+        fig = px.bar(stats_b, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
         st.plotly_chart(fig)
 
 
