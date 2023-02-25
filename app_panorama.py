@@ -470,7 +470,7 @@ def graficos():
     
     #Criando dicionários
     # Dicionário de Índices
-    index_tck = {
+    index = {
         "Crypto200": "^CMC200",
         "DXY": "DX-Y.NYB",
         "S&P500": "^GSPC",
@@ -487,7 +487,7 @@ def graficos():
     }
 
     # Dicionário de Criptomoedas
-    crypto_tck = {
+    crypto = {
         "BITCOIN": "BTC-USD",
         "ETHEREUM": "ETH-USD",
         "POLYGON": "MATIC-USD",
@@ -500,7 +500,7 @@ def graficos():
     }
 
     # Dicionário de Juros
-    yeld_tck = {
+    yeld = {
         "13 Week Treasury Bill": "^IRX",
         "5 Years Yeld": "^FVX",
         "10 Years Yeld": "^TNX",
@@ -508,7 +508,7 @@ def graficos():
     }
 
     # Dicionário de Empresas Americanas
-    stocks_tck = {
+    stocks = {
         "AAPL": "Apple",
         "MSFT": "Microsoft",
         "GOOGL": "Alphabet",
@@ -522,7 +522,7 @@ def graficos():
     }
 
     # Dicionário de CÂMBIO
-    currency_tck = {
+    currency = {
         "BRLUSD=X": "BRL/USD",
         "EURUSD=X": "EUR/USD",
         "GBPUSD=X": "GBP/USD",
@@ -531,7 +531,7 @@ def graficos():
     }
 
     # Dicionário de Commodities
-    commodity_tck = {
+    commodity = {
         "CRUDE OIL": "CL=F",
         "OURO": "GC=F",
         "PRATA": "SI=F",
@@ -541,8 +541,8 @@ def graficos():
     
     
     
-    def get_quotes(ticker):
-        data = yf.download(index_tck.get(ticker), period="1mo", interval="1d")
+    def get_quotes(classe,ticker, period,timeframe):
+        data = yf.download(classe.get(ticker), period=period, interval=timeframe)
         return data
 
 
@@ -557,96 +557,136 @@ def graficos():
     
     with tab1:
         
-        # Criando caixa com os nomes dos papeis
-        indice_selecionado = st.selectbox(
-            "Selecione o Índice", index_tck.keys())
-        
-        for ticker in index_tck.keys():
+        # Formulario para o cliente informar como deseja visualizar o gráfico
+        with st.form(key="form1"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", index.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox(
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
+            
+        for ticker in index.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = get_quotes(indice_selecionado)
+                indice_diario = get_quotes(index,indice_selecionado,period,timeframe)
 
         plot_graph(indice_diario)
+        st.write("---")
 
 
     
     with tab2:
-        # Criando caixa com os nomes dos papeis
-         # Criando caixa com os nomes dos papeis
-        indice_selecionado = st.selectbox(
-            "Selecione a Criptomoeda", crypto_tck.keys())
-  
-        
-        for ticker in index_tck.keys():
+        with st.form(key="form2"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", crypto.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox(
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
+            
+        for ticker in crypto.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = get_quotes(indice_selecionado)
+                indice_diario = get_quotes(crypto,indice_selecionado,period,timeframe)
 
         plot_graph(indice_diario)   
+        st.write("---")
 
     with tab3:
-         # Criando caixa com os nomes dos papeis
-        indice_selecionado = st.selectbox(
-            "Selecione a Ação", stocks_tck.keys())
-  
+        with st.form(key="form3"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", stocks.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox( 
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
         
-        for ticker in index_tck.keys():
+        for ticker in stocks.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = get_quotes(indice_selecionado)
+                indice_diario = get_quotes(stocks,indice_selecionado,period,timeframe)
 
         plot_graph(indice_diario)
+        st.write("---")
         
-        
-        
-        st.write("")
     with tab4:
-        # Criando caixa com os nomes dos papeis
-        indice_selecionado = st.selectbox(
-            "Selecione a Commoditie", commodity_tck.keys())
-
-        for ticker in commodity_tck.keys():
+        with st.form(key="form4"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", commodity.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox( 
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
+        
+        for ticker in commodity.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = yf.download(commodity_tck.get(
-                    indice_selecionado), period="60d", interval="1d")
+                indice_diario = get_quotes(commodity,indice_selecionado,period,timeframe)
 
-        plot_graph(indice_diario)
+            plot_graph(indice_diario)
+            st.write("---")
 
 
     with tab5:
-        # Criando caixa com os nomes dos papeis
-        indice_selecionado = st.selectbox("Selecione o Juro", yeld_tck.keys())
-
-        for ticker in yeld_tck.keys():
+        with st.form(key="form5"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", yeld.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox( 
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
+        
+        for ticker in yeld.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = yf.download(yeld_tck.get(
-                    indice_selecionado), period="60d", interval="1d")
+                indice_diario = get_quotes(yeld,indice_selecionado,period,timeframe)
 
-        plot_graph(indice_diario)
+            plot_graph(indice_diario)
+            st.write("---")
+
 
     with tab6:
-        indice_selecionado = st.selectbox(
-            "Selecione a Criptomoeda", currency_tck.keys())
-  
+        with st.form(key="form6"):    
+            indice_selecionado = st.selectbox(
+                "Selecione o Índice", currency.keys())
+            period = st.selectbox(
+                "Defina o Período",
+                options=["1d","7d","30d","60d","1y"])
+            timeframe = st.selectbox( 
+                "Escolha o tempo gráfico",
+                options=[ "5m", "15m", "30m", "60m", "1d", "1wk", "1mo", "3mo"])
+            st.form_submit_button()
         
-        for ticker in index_tck.keys():
+        for ticker in currency.keys():
             if not ticker == indice_selecionado:
                 pass
             else:
-                indice_diario = get_quotes(indice_selecionado)
+                indice_diario = get_quotes(currency,indice_selecionado,period,timeframe)
 
-        plot_graph(indice_diario)
-        
-        
-        
-    st.markdown("---")
+            plot_graph(indice_diario)
+            st.write("---")
+
 
 ##################################################################################
 ##################################################################################
