@@ -25,7 +25,7 @@ def home():
     
     st.header("Como utilizar?")
     st.write("Na aba ao lado você encontra as opções disponíveis, confira abaixo o que vai encontrar em cada uma delas.")
-    st.write("Caso a aba não esteja aparecendo, clique na setinha (>) no canto superior esquerdo. ")
+    st.write("Caso esteja utilizando pelo celular e aba não esteja aparecendo, clique na setinha (>) no canto superior esquerdo. Neste caso, vire o celular para melhor visualização das análises quantitativas.  ")
     st.subheader("Panorama")
     st.write("Na aba Panorama estão disponíveis as cotações das principais criptomoedas, índices mundiais, ações americanas, e das principais moedas FIAT pareadas com o Dólar. ")
     
