@@ -18,6 +18,36 @@ import seaborn as sns
     # Cada uma referente à uma determinada página que posteriormente,
     # serão chamadas através da barra de menu lateral.
 
+def home():
+    st.title("Bem Vindo ao Panorama Cripto")
+    st.write("Aqui você encontra as principais informações que precisa para se atualizar sobre o mercado!")
+    st.markdown("___")
+    
+    st.header("Como utilizar?")
+    st.write("Na aba ao lado você encontra as opções disponíveis, confira abaixo o que vai encontrar em cada uma delas.")
+    st.write("Caso a aba não esteja aparecendo, clique na setinha (>) no canto superior esquerdo. ")
+    st.subheader("Panorama")
+    st.write("Na aba Panorama estão disponíveis as cotações das principais criptomoedas, índices mundiais, ações americanas, e das principais moedas FIAT pareadas com o Dólar. ")
+    
+    st.subheader("Gráfico")
+    st.write("Na aba gráficos, você pode conferir como está o gráfico de cada uma das cotações listadas na aba Panorama.")
+    
+    st.subheader("Análise Quantitativa")
+    st.write("Em Análise Quantitativa, temos diversas análises de dados que nos mostram aquilo que somente os gráficos não mostram.")
+    st.write("Por enquanto só estão disponíveis análises referentes ao Bitcoin e ao SP500.")
+    
+    st.markdown("___")
+    
+    
+    
+    st.subheader("Quem sou eu?")
+    st.write("Marco Aurélio dos Santos Silva, sou Engenheiro Civil, aspirante à Analista de Dados estou desenvolvendo este projeto como parte do meu portfólio.")
+    github = 'https://github.com/marcosilvaa/app_panorama_do_mercado'
+    text_git = 'GitHub'
+    st.markdown("Você pode conferir o código fonte no meu "+f'<a href="{github}">{text_git}</a>', unsafe_allow_html=True)
+    linkedin ="https://www.linkedin.com/in/marcosilvaa/"
+    st.markdown("E fique a vontade para se conectar ao meu "+f'<a href="{linkedin}">{"LinkedIn"}</a>', unsafe_allow_html=True)
+
     # Panorama -> Screener dos principais ativos e índices do mercado
 def panorama():
     st.title("Panorama Do Mercado")
@@ -264,34 +294,26 @@ def analise_quant(option):
     
     ###Criando funções que serão utilizadas 
     
-    def plot_retorno_mensal(DataFrame,cor_padrao):
-        fig = px.imshow(DataFrame,
-                labels=dict(x="Mês", y="Ano",),
-                x=DataFrame.columns,
-                y=DataFrame.index)
-        fig = px.imshow(DataFrame, text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-        fig.update_layout(width=900, height=900, font_size=200)
-        fig.update_layout(font_size=500)
-        fig.update(layout_coloraxis_showscale=False)
-        st.plotly_chart(fig,use_container_width=True)
+    ### RETORNO ---> Essa função criar um dataframe que vai agrupar os valores em ano e mês     
+    # Função que realiza o download dos dados do btc
+    def load_data(link):
+        dataframe = pd.read_csv(
+            link,
+            index_col="Date",
+            parse_dates=True
+        )
+        return dataframe
 
-    def plot_estatistica(DataFrame, cor_padrao):
-        fig = px.imshow(stats_a,
-                labels=dict(x="Mês", y="Ano",),
-                x=stats_a.columns,
-                y=stats_a.index)
-        fig = px.imshow(DataFrame, text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-        fig.update_layout(width=1000, height=400, font_size=200)
-        fig.update_layout(font_size=200)
-        fig.update(layout_coloraxis_showscale=False)
-        st.plotly_chart(fig,use_container_width=True)
-
-    def plot_postivio_negativo(DataFrame):
-        fig = px.bar(DataFrame, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
-        #EM CONSTRUÇÂO ---> adicionando linha média  
-        #fig.add_trace(go.Scatter(x=[-0.5, len(stats_b)-0.5], y=[mean_value]*2, mode='lines', name='Média', line=dict(color='white')))
-        st.plotly_chart(fig, use_container_width=True)
+    def retorno(DataFrame):
+        # Agrupando por ano e mês e somando os valores da coluna %
+        retorno_mensal = DataFrame.groupby([DataFrame.index.year.rename("Year"), DataFrame.index.month.rename("Month")]).sum()
+        retorno_mensal = pd.DataFrame(retorno_mensal)
+        # Transformando o índice em colunas
+        retorno_mensal.reset_index(inplace=True)
+        return retorno_mensal
     
+    ### ESTATISTICA ---> Essa função vai criar um novo dataframe com as informações estatísticas,
+    #                    e valores máximos positivos e mínimos negatívos 
     def estatistica(DataFrame):
         # Construindo novo dataframe com as informações estatísticas
         stats = pd.DataFrame(DataFrame.mean(), columns=["Média"])
@@ -306,45 +328,79 @@ def analise_quant(option):
         stats["Negativos"] = round((DataFrame.le(0).sum()/DataFrame.count())*100)
         return stats
 
-    def retorno(DataFrame):
-        # Agrupando por ano e mês e somando os valores da coluna %
-        retorno_mensal = DataFrame.groupby([DataFrame.index.year.rename("Year"), DataFrame.index.month.rename("Month")]).sum()
-        retorno_mensal = pd.DataFrame(retorno_mensal)
-        # Transformando o índice em colunas
-        retorno_mensal.reset_index(inplace=True)
-        return retorno_mensal
-        
+    def plot_retorno_mensal(DataFrame,cor_padrao,width,height):
+        fig = px.imshow(DataFrame,
+                labels=dict(x="Mês", y="Ano",),
+                x=DataFrame.columns,
+                y=DataFrame.index)
+        fig = px.imshow(DataFrame, text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+        fig.update_layout(width=width, height=height, font_size=500)
+        fig.update_layout(font_size=500)
+        fig.update(layout_coloraxis_showscale=True)
+        st.plotly_chart(fig,use_container_width=True)
+
+    def plot_estatistica(DataFrame, cor_padrao):
+        fig = px.imshow(stats_a,
+                labels=dict(x="Mês", y="Ano",),
+                x=stats_a.columns,
+                y=stats_a.index)
+        fig = px.imshow(DataFrame, text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+        fig.update_layout(width=1000, height=400, font_size=200)
+        fig.update_layout(font_size=200)
+        fig.update(layout_coloraxis_showscale=True)
+        st.plotly_chart(fig,use_container_width=True)
+
+    def plot_postivio_negativo(DataFrame):
+        fig = px.bar(DataFrame, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
+        #EM CONSTRUÇÂO ---> adicionando linha média  
+        #fig.add_trace(go.Scatter(x=[-0.5, len(stats_b)-0.5], y=[mean_value]*2, mode='lines', name='Média', line=dict(color='white')))
+        st.plotly_chart(fig, use_container_width=True)
+    
 
     if option == "Bitcoin":
 
         st.title("Análise Quantitativa " + option)
         st.markdown("---")
         
-        # Função que realiza o download dos dados do btc
-        def load_data():
-            btc_data = pd.read_csv(
-                "https://www.lookintobitcoin.com/bitcoin-price-download/",
-                index_col="Date",
-                parse_dates=True
-            )
-            btc_data.drop("Unnamed: 0", axis=1, inplace=True)
-            return btc_data
-        
-        btc_data = load_data()
+        ################################
+        #Plotando Gráfico do BTC
+        st.subheader("Gráfico BTC")
+        #Obtendo dados OHLC ---> Aqui vamos utilizar a YahooFinance para obter todos os dados necessários
+        btc = yf.download("BTC-USD", period="10y", interval="1d")
+        # plotando gráfico de CandleSticks
+        # criando figura
+        fig = go.Figure()
+        # criando gráfico
+        fig.add_trace(
+            go.Candlestick(x=btc.index,
+                        open=btc['Open'],
+                        high=btc['High'],
+                        low=btc['Low'],
+                        close=btc['Close']))
+        # configurando botoes de seleção de período de tempo
+        fig.update_layout(
+            xaxis=dict(
+                # configurando slider
+                rangeslider = dict( visible = False)))
+        # configurando escala logarítimica 
+        fig.update_yaxes(type="log")
+        # configurando tamanho do gráfico 
+        fig.update_layout(width=800, height=500)
+        # plotando figura
+        st.plotly_chart(fig,use_container_width=True)
 
-        #Plotando Gráfico total do BTC
-        st.write("Gráfico BTC")
-        st.line_chart(btc_data, x=None, y=None, width=0,
-                    height=0, use_container_width=True)
-        st.markdown("---")
 
-        
+        ################################
         #Começando estudo quantitativo
         
+        #importando dados
+        btc_data = load_data("https://www.lookintobitcoin.com/bitcoin-price-download/")
+        #removendo coluna sem dados 
+        btc_data.drop("Unnamed: 0", axis=1, inplace=True)
         # criando novo dataframe com preço de fechamento de cada mês
         btc_mensal = btc_data.resample("M").last()
         # Criando coluna para armazenar a variação percentual do preço
-        btc_mensal['%'] = (btc_mensal['Price'].pct_change() * 100).round(2)        
+        btc_mensal['%'] = (btc_mensal['Price'].pct_change() * 100).round()        
         # Selecionando a coluna % do objeto btc_mensal
         btc_percent = pd.DataFrame(btc_mensal['%'])
         
@@ -396,41 +452,46 @@ def analise_quant(option):
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.095, 'yellow'], [1.0, 'green']]
             #plotando heatmap com retornos mensais
-            plot_retorno_mensal(tabela_retornos_total,cor_padrao)
+            plot_retorno_mensal(tabela_retornos_total,cor_padrao,900,900)
             st.markdown("---")
         
         with ciclo1: 
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.1, 'yellow'], [1.0, 'green']]
             #plotando heatmap com retornos mensais
-            plot_retorno_mensal(tabela_retornos1,cor_padrao)
+            plot_retorno_mensal(tabela_retornos1,cor_padrao,900,500)
             st.markdown("---")
 
         with ciclo2: 
-           
             #Plotando HEATMAP com retornos % mensais 
             cor_padrao = [[0, 'red'], [0.07, 'yellow'], [1.0, 'green']]
             #plotando heatmap com retornos mensais
-            plot_retorno_mensal(tabela_retornos2,cor_padrao)
+            plot_retorno_mensal(tabela_retornos2,cor_padrao,900,500)
             st.markdown("---")
             
         with ciclo3: 
-            st.write("O terceiro ciclo ")
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.425, 'yellow'], [1.0, 'green']]
             #plotando heatmap com retornos mensais
-            plot_retorno_mensal(tabela_retornos3,cor_padrao)
+            plot_retorno_mensal(tabela_retornos3,cor_padrao,900,500)
+            st.markdown("---")
+            
+        with ciclo4: 
+            #Definindo paleta de cores para o heatmap 
+            cor_padrao = [[0, 'red'], [0.425, 'yellow'], [1.0, 'green']]
+            #plotando heatmap com retornos mensais
+            plot_retorno_mensal(tabela_retornos4,cor_padrao,900,500)
             st.markdown("---")
 
         ### PLOTANDO ESTATISTICAS
-        st.subheader("Resumo Estatístico")
+        st.subheader("Resumo Estatístico (%)")
         total, ciclo1, ciclo2, ciclo3, ciclo4 = st.tabs(["Total", "Ciclo 1", "Ciclo 2", "Ciclo 3", "Ciclo4"])
         
         with total: 
             #plotando informações estatíticas
             stats_a = estatistica(tabela_retornos_total)[["Média","Mediana","Maior","Menor"]]
             # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-            stats_a = stats_a.transpose().round(2)
+            stats_a = stats_a.transpose().round(1)
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.08, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
@@ -441,7 +502,7 @@ def analise_quant(option):
             #plotando informações estatíticas
             stats_a = estatistica(tabela_retornos1)[["Média","Mediana","Maior","Menor"]]
             # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-            stats_a = stats_a.transpose().round(2)
+            stats_a = stats_a.transpose().round(1)
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.08, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
@@ -452,7 +513,7 @@ def analise_quant(option):
             #plotando informações estatíticas
             stats_a = estatistica(tabela_retornos2)[["Média","Mediana","Maior","Menor"]]
             # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-            stats_a = stats_a.transpose().round(2)
+            stats_a = stats_a.transpose().round(1)
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.06, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
@@ -463,7 +524,7 @@ def analise_quant(option):
             #plotando informações estatíticas
             stats_a = estatistica(tabela_retornos3)[["Média","Mediana","Maior","Menor"]]
             # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-            stats_a = stats_a.transpose().round(2)
+            stats_a = stats_a.transpose().round(1)
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.3, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
@@ -474,7 +535,7 @@ def analise_quant(option):
             #plotando informações estatíticas
             stats_a = estatistica(tabela_retornos4)[["Média","Mediana","Maior","Menor"]]
             # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-            stats_a = stats_a.transpose().round(2)
+            stats_a = stats_a.transpose().round(1)
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.5, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
@@ -515,73 +576,76 @@ def analise_quant(option):
             #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
             stats_b = estatistica(tabela_retornos4)[["Positivos", "Negativos"]]
             plot_postivio_negativo(stats_b)   
-            st.markdown("---")
-        
-            
+            st.markdown("---") 
             
     if option == "SP500":
         
         st.title("Análise Quantitativa " + option)
         st.markdown("---")
-        
+        ################################
+        #Plotando Gráfico do BTC
+        st.subheader("Gráfico SPX")
+        #Obtendo dados OHLC ---> Aqui vamos utilizar a YahooFinance para obter todos os dados necessários
+        spx = yf.download("^GSPC", period="10y", interval="1d")
+        # plotando gráfico de CandleSticks
+        # criando figura
+        fig = go.Figure()
+        # criando gráfico
+        fig.add_trace(
+            go.Candlestick(x=spx.index,
+                        open=spx['Open'],
+                        high=spx['High'],
+                        low=spx['Low'],
+                        close=spx['Close']))
+        # configurando botoes de seleção de período de tempo
+        fig.update_layout(
+            xaxis=dict(
+                # configurando slider
+                rangeslider = dict( visible = False)))
+        # configurando escala logarítimica 
+        fig.update_yaxes(type="log")
+        # configurando tamanho do gráfico 
+        fig.update_layout(width=800, height=500)
+        # plotando figura
+        st.plotly_chart(fig,use_container_width=True)
+
         #importando dataframe
-        spx_data = pd.read_csv("SPX.csv", index_col="Date",parse_dates=True)
+        spx_data = load_data("SPX.csv")
         # removendo coluna vazia
-        spx_data = spx_data.drop("Volume", axis=1)
-        
+        spx_data.drop("Volume", axis=1)
         #criando dataset com valores a partir do ano 2000 
         spx_recente = spx_data[18078:]
 
         # criando dataframe com variação percentual
-        spx_percent = spx_recente["Adj Close"].pct_change()*100
+        spx_percent = round(spx_recente["Adj Close"].pct_change()*100)
 
         # Criando dataframe que agrupa os dados em Ano e Mes
-        retorno_mensal = spx_percent.groupby([spx_percent.index.year.rename("Year"), 
-                                              spx_percent.index.month.rename("Month")]).sum()
+        retorno_mensal = retorno(spx_percent)
 
         # criando dataframe/tabela onde o Indice é o ANO, e as colunas são os retornos mensais
         tabela_retornos = pd.DataFrame(retorno_mensal)
-        tabela_retornos = pd.pivot_table(tabela_retornos, values="Adj Close", index="Year", columns="Month")
+        tabela_retornos = pd.pivot_table(tabela_retornos, values=["Adj Close"], index="Year", columns="Month")
         # Trocando formato do nome dos meses Numero->Nome Abreviado
         tabela_retornos.columns = ["Jan", "Fev", "Mar", "Abr","Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 
         #Plotando HEATMAP com os retornos mensais
-        cor_padrao = [[0, 'red'], [0.5, 'yellow'], [1.0, 'green']]
-        plot_retorno_mensal(cor_padrao)
+        cor_padrao = [[0, 'red'], [0.55, 'yellow'], [1.0, 'green']]
+        plot_retorno_mensal(tabela_retornos,cor_padrao, 100,900)
         st.markdown("---")
-        
-        
-        # Construindo novo dataframe com as informações estatísticas
-        stats = pd.DataFrame(tabela_retornos.mean(), columns=["Média"])
-        stats["Mediana"] = tabela_retornos.median()
-        stats["Maior"] = tabela_retornos.max()
-        stats["Menor"] = tabela_retornos.min()
-
+        #plotando informações estatíticas
+        stats_a = estatistica(tabela_retornos)[["Média","Mediana","Maior","Menor"]]
         # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-        stats_a = stats.transpose().round(2)
-        
+        stats_a = stats_a.transpose().round(2)
+        #Definindo paleta de cores para o heatmap 
         #Plotando HEATMAP com resumo estatístico
-        plot_estatistica(cor_padrao)
+        plot_estatistica(stats_a,cor_padrao)
         st.markdown("---")
-        
-
-        #Adcionando ao DataFrame ´stats´ coluna Positivos e coluna Negativos
-        
-        # Método gt() -> Greater -> Maior que()
-        # Esse método busca quantas vezes o resultado foi maior que, no caso zero.
-        # método -> sum() vai soamr quantas vezes a condição foi verdadeira, depois é dividido pela quantidade de items da tabela
-        stats["Positivos"] = round(tabela_retornos.gt(0).sum()/tabela_retornos.count()*100)
-        # Mesma lógica, porem agora o método le() vai mostrar os itens menores do que zero
-        stats["Negativos"] = round((tabela_retornos.le(0).sum()/tabela_retornos.count())*100)
-
-       
-        #criando novo dataframe apenas com essas colunas
-        stats_b = stats[["Positivos", "Negativos"]]
-        mean_value=stats["Positivos"].mean()
         
         #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
-        plot_postivio_negativo()
-        st.markdown("---")
+        stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
+        plot_postivio_negativo(stats_b)   
+        st.markdown("---") 
+        
 
 
 ##################################################################################
@@ -591,8 +655,7 @@ def analise_quant(option):
 def graficos():
     st.title("Gráficos")
     st.markdown("---")
-    
-    
+
     #Criando dicionários
     # Dicionário de Índices
     index = {
@@ -663,19 +726,72 @@ def graficos():
         "SOJA": "ZS=F",
         "MILHO": "ZC=F",
     }
-    
-    
-    
+
     def get_quotes(classe,ticker, period,timeframe):
         data = yf.download(classe.get(ticker), period=period, interval=timeframe)
         return data
 
 
     def plot_graph(ticker):
-        fig = go.Figure(data=[go.Candlestick(x=ticker.index,open=ticker["Open"],
-                                            high=ticker["High"],low=ticker["Low"],close=ticker["Close"])])
-        fig.update_layout(xaxis_rangeslider_visible=False)
-        return st.plotly_chart(fig)
+        fig = go.Figure()
+
+        # criando gráfico
+        fig.add_trace(
+            go.Candlestick(x=ticker.index,
+                        open=ticker['Open'],
+                        high=ticker['High'],
+                        low=ticker['Low'],
+                        close=ticker['Close']))
+
+
+        # configurando botoes de seleção de período de tempo
+        fig.update_layout(
+            xaxis=dict(
+                rangeselector = dict(
+                    buttons = ([
+                                #1 mes
+                                dict(count = 1,
+                                    label = '1m',
+                                    step = 'month',
+                                    stepmode = 'backward'),
+                                #3 meses
+                                dict(count = 3,
+                                    label = '3m',
+                                    step = 'month',
+                                    stepmode = 'backward'),
+                                # 6 meses
+                                dict(count = 6,
+                                    label = '6m',
+                                    step = 'month',
+                                    stepmode = 'backward'),
+                                # 1 ano
+                                dict(count = 1,
+                                    label = '1y',
+                                    step = 'year',
+                                    stepmode = 'backward'),
+                                # ultimos 12 meses
+                                dict(count = 1,
+                                    label = 'YTD',
+                                    step = 'year',
+                                    stepmode = 'todate'),
+                                # total
+                                dict(step='all')
+                    ])
+                ),
+
+                # configurando slider
+                rangeslider = dict( visible = True),
+                
+                type='date'
+            )
+        )
+            
+        # configurando escala logarítimica 
+        # configurando tamanho do gráfico 
+        fig.update_layout(width=1000, height=700, font_size=16)
+        fig.update_yaxes(type="log")
+        # plotando figura
+        st.plotly_chart(fig,use_container_width=True)
 
         
     tab1, tab2, tab3, tab4, tab5,tab6 = st.tabs(["Índices", "Criptomoedas","Ações","Commodities", "Yeld", "Câmbio"])
@@ -820,13 +936,13 @@ def graficos():
 def main():
     with st.container():
         st.image("btc_whitepaper_wordcloud.png")
-    st.sidebar.title("Crypto Screener")
+    st.sidebar.title("Panorama Cripto")
     st.sidebar.markdown("---")
-    lista_menu = ["Panorama", "Gráficos","Análise Quantitativa"]
-    
+    lista_menu = ["Home","Panorama", "Gráficos","Análise Quantitativa"]
     escolha = st.sidebar.radio("Escolha uma opção", lista_menu)
 
-
+    if escolha == "Home":
+        home()
     if escolha == "Panorama":
         panorama()
     if escolha == "Gráficos":
