@@ -393,23 +393,16 @@ def analise_quant(option):
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Fonte Yahoo Finance")
         
-    def plot_all(width,height):
-        #Plotando HEATMAP com os retornos mensais
-        cor_padrao = [[0, 'red'], [0.55, 'yellow'], [1.0, 'green']]
-        plot_retorno_mensal(tabela_retornos,cor_padrao, 100,900)
-        st.markdown("---")
-        #plotando informações estatíticas
-        stats_a = estatistica(tabela_retornos)[["Média","Mediana","Maior","Menor"]]
-        # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-        stats_a = stats_a.transpose().round(1)
-        #Definindo paleta de cores para o heatmap 
-        #Plotando HEATMAP com resumo estatístico
-        plot_estatistica(stats_a,cor_padrao)
-        st.markdown("---")
-        #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
-        stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
-        plot_postivio_negativo(stats_b)   
-        st.markdown("---") 
+    def plot_box(DataFrame,height=500):
+        df_boxplot = pd.DataFrame(DataFrame,columns=["Open","High","Low","Close"])
+        df_melt = pd.melt(df_boxplot, var_name='Grupo', value_name='Valores')
+        fig = px.violin(df_melt,box=True, x='Grupo', y='Valores', title='Box Plot OHLC')
+        st.plotly_chart(fig,use_container_width=True)
+        
+        fig = px.violin(DataFrame, y="Volume",box=True)
+        fig.update_layout(height=height)
+        st.plotly_chart(fig,use_container_width=True)
+       
 
     if option == "Bitcoin":
 
@@ -457,7 +450,7 @@ def analise_quant(option):
         tabela_retornos1.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
         
         # Criando Dataframe com o ---> CICLO 2 do Bitcoin 
-        btc_ciclo2 = btc_percent.iloc[17:65]
+        btc_ciclo2 = btc_percent.iloc[17:71]
         retorno_mensal2 = retorno(btc_ciclo2)
         #Transformando dataframe em tabela
         tabela_retornos2 = retorno_mensal2.pivot_table(values='%',index="Year", columns="Month")
@@ -465,7 +458,7 @@ def analise_quant(option):
         tabela_retornos2.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
               
         # Criando Dataframe com o ---> CICLO 3 do Bitcoin 
-        btc_ciclo3 = btc_percent.iloc[65:113]
+        btc_ciclo3 = btc_percent.iloc[71:118]        
         retorno_mensal3 = retorno(btc_ciclo3)
         #Transformando dataframe em tabela
         tabela_retornos3 = retorno_mensal3.pivot_table(values='%',index="Year", columns="Month")
@@ -473,13 +466,33 @@ def analise_quant(option):
         tabela_retornos3.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
         
         # Criando Dataframe com o ---> CICLO 4 do Bitcoin 
-        btc_ciclo4 = btc_percent.iloc[113:]
+        btc_ciclo4 = btc_percent.iloc[118:]
+
         retorno_mensal4 = retorno(btc_ciclo4)        
         #Transformando dataframe em tabela
         tabela_retornos4 = retorno_mensal4.pivot_table(values='%',index="Year", columns="Month")
         #Definindo o nome das colunas como o nome de cada mês
         tabela_retornos4.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-              
+        
+        ### PLOTANDO GRAFICO COM OS 3 CICLOS
+        
+        st.dataframe(btc_data.iloc[3556])
+        
+        ciclos = [(0, 835), (835, 2124), (2124, 3556), (3556, len(btc_data))]
+        fig = go.Figure()
+
+        for i, (start, end) in enumerate(ciclos):
+            ciclo = btc_data.iloc[start:end].reset_index()
+            ciclo = ciclo.rename(columns={'index': 'Date'})
+            ciclo['numero'] = ciclo.index + 1
+            ciclo = ciclo[['numero', 'Date', 'Price']]
+            fig.add_trace(go.Scatter(x=ciclo['numero'], y=ciclo['Price'], mode='lines', name=f'Ciclo {i+1}'))
+        fig.update_yaxes(type="log")
+        fig.update_layout(width=1000, height=800, font_size=200)
+        
+        fig.update_layout(xaxis_range=[0, 1450], xaxis_tickvals=[0, 669, 2130, 3560])
+        st.plotly_chart(fig, use_container_width=True)
+
         
         ###PLOTANDO RETORNOS MENSAIS 
         st.subheader("Retorno % Mensal")
@@ -613,7 +626,8 @@ def analise_quant(option):
             stats_b = estatistica(tabela_retornos4)[["Positivos", "Negativos"]]
             plot_postivio_negativo(stats_b)   
             st.markdown("---") 
-            
+        
+        plot_box(btc)
     if option == "Ethereum":
         st.title("Análise Quantitativa " + option)
         st.markdown("---")
@@ -656,18 +670,8 @@ def analise_quant(option):
         plot_postivio_negativo(stats_b)   
         st.markdown("---") 
         
+        plot_box(eth)
         
-        df_boxplot = pd.DataFrame(eth,columns=["Open","High","Low","Close"])
-        df_melt = pd.melt(df_boxplot, var_name='Grupo', value_name='Valores')
-        fig = px.violin(df_melt,box=True, x='Grupo', y='Valores', title='Comparação entre três grupos')
-        st.plotly_chart(fig,use_container_width=True)
-
-
-        
-        fig = px.violin(eth, y="Volume",box=True)
-        fig.update_layout(height=500)
-        st.plotly_chart(fig,use_container_width=True)
-       
         
         
     if option == "SP500":
@@ -720,6 +724,8 @@ def analise_quant(option):
             stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
             plot_postivio_negativo(stats_b)   
             st.markdown("---") 
+            
+            plot_box(spx)
         with empresas:
             def load_company():
                 url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" 
