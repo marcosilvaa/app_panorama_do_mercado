@@ -476,8 +476,6 @@ def analise_quant(option):
         
         ### PLOTANDO GRAFICO COM OS 3 CICLOS
         
-        st.dataframe(btc_data.iloc[3556])
-        
         ciclos = [(0, 835), (835, 2124), (2124, 3556), (3556, len(btc_data))]
         fig = go.Figure()
 
