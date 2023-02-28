@@ -390,8 +390,6 @@ def analise_quant(option):
     # Plotando Gráfico de BARRAS para comparação entre meses Positivos X Negativos
     def plot_postivio_negativo(DataFrame):
         fig = px.bar(DataFrame, color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
-        #EM CONSTRUÇÂO ---> adicionando linha média  
-        #fig.add_trace(go.Scatter(x=[-0.5, len(stats_b)-0.5], y=[mean_value]*2, mode='lines', name='Média', line=dict(color='white')))
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Fonte Yahoo Finance")
         
@@ -657,59 +655,91 @@ def analise_quant(option):
         stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
         plot_postivio_negativo(stats_b)   
         st.markdown("---") 
+        
+        
+        df_boxplot = pd.DataFrame(eth,columns=["Open","High","Low","Close"])
+        df_melt = pd.melt(df_boxplot, var_name='Grupo', value_name='Valores')
+        fig = px.violin(df_melt,box=True, x='Grupo', y='Valores', title='Comparação entre três grupos')
+        st.plotly_chart(fig,use_container_width=True)
 
+
+        
+        fig = px.violin(eth, y="Volume",box=True)
+        fig.update_layout(height=500)
+        st.plotly_chart(fig,use_container_width=True)
+       
+        
+        
     if option == "SP500":
+        analise, empresas = st.tabs(["Análise","Empresas"])
+        with analise: 
+            st.title("Análise Quantitativa " + option)
+            st.markdown("---")
+            ################################
+            #Plotando Gráfico do BTC
+            st.subheader("Gráfico SPX")
+            #Obtendo dados OHLC ---> Aqui vamos utilizar a YahooFinance para obter todos os dados necessários
+            spx = yf.download("^GSPC", period="10y", interval="1d")
+            
+            #Plotando Gráfico
+            plot_candlestick(spx)
+
+            #importando dataframe
+            spx_data = load_data("SPX.csv")
+            # removendo coluna vazia
+            spx_data.drop("Volume", axis=1)
+            #criando dataset com valores a partir do ano 2000 
+            spx_recente = spx_data[18078:]
+
+            # criando dataframe com variação percentual
+            spx_percent = round(spx_recente["Adj Close"].pct_change()*100)
+
+            # Criando dataframe que agrupa os dados em Ano e Mes
+            retorno_mensal = retorno(spx_percent)
+
+            # criando dataframe/tabela onde o Indice é o ANO, e as colunas são os retornos mensais
+            tabela_retornos = pd.DataFrame(retorno_mensal)
+            tabela_retornos = pd.pivot_table(tabela_retornos, values=["Adj Close"], index="Year", columns="Month")
+            # Trocando formato do nome dos meses Numero->Nome Abreviado
+            tabela_retornos.columns = ["Jan", "Fev", "Mar", "Abr","Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+
+            #Plotando HEATMAP com os retornos mensais
+            cor_padrao = [[0, 'red'], [0.55, 'yellow'], [1.0, 'green']]
+            plot_retorno_mensal(tabela_retornos,cor_padrao, 100,900)
+            st.markdown("---")
+            #plotando informações estatíticas
+            stats_a = estatistica(tabela_retornos)[["Média","Mediana","Maior","Menor"]]
+            # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
+            stats_a = stats_a.transpose().round(2)
+            #Definindo paleta de cores para o heatmap 
+            #Plotando HEATMAP com resumo estatístico
+            plot_estatistica(stats_a,cor_padrao)
+            st.markdown("---")
+            
+            #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
+            stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
+            plot_postivio_negativo(stats_b)   
+            st.markdown("---") 
+        with empresas:
+            def load_company():
+                url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" 
+                html = pd.read_html(url, header=0)  
+                df = html[0]
+                return df 
+            df_company = load_company()
+            df_company = pd.DataFrame(df_company,columns=["Symbol","Security","GICS Sector","GICS Sub-Industry"])
+
+            setor = pd.DataFrame(df_company,columns=["Security","GICS Sector","GICS Sub-Industry"])
+            st.dataframe(setor)
+            setor = df_company.groupby("GICS Sector")
+            composicao = round((setor["Symbol"].count()/len(df_company)*100))
+            st.bar_chart(composicao)
+            sub_setor = df_company.groupby("GICS Sub-Industry")
+            composicao2 = round((sub_setor["Symbol"].count()/len(df_company)*100))
+            st.bar_chart(composicao2)
+           
         
-        st.title("Análise Quantitativa " + option)
-        st.markdown("---")
-        ################################
-        #Plotando Gráfico do BTC
-        st.subheader("Gráfico SPX")
-        #Obtendo dados OHLC ---> Aqui vamos utilizar a YahooFinance para obter todos os dados necessários
-        spx = yf.download("^GSPC", period="10y", interval="1d")
-        
-        #Plotando Gráfico
-        plot_candlestick(spx)
-
-        #importando dataframe
-        spx_data = load_data("SPX.csv")
-        # removendo coluna vazia
-        spx_data.drop("Volume", axis=1)
-        #criando dataset com valores a partir do ano 2000 
-        spx_recente = spx_data[18078:]
-
-        # criando dataframe com variação percentual
-        spx_percent = round(spx_recente["Adj Close"].pct_change()*100)
-
-        # Criando dataframe que agrupa os dados em Ano e Mes
-        retorno_mensal = retorno(spx_percent)
-
-        # criando dataframe/tabela onde o Indice é o ANO, e as colunas são os retornos mensais
-        tabela_retornos = pd.DataFrame(retorno_mensal)
-        tabela_retornos = pd.pivot_table(tabela_retornos, values=["Adj Close"], index="Year", columns="Month")
-        # Trocando formato do nome dos meses Numero->Nome Abreviado
-        tabela_retornos.columns = ["Jan", "Fev", "Mar", "Abr","Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
-
-        #Plotando HEATMAP com os retornos mensais
-        cor_padrao = [[0, 'red'], [0.55, 'yellow'], [1.0, 'green']]
-        plot_retorno_mensal(tabela_retornos,cor_padrao, 100,900)
-        st.markdown("---")
-        #plotando informações estatíticas
-        stats_a = estatistica(tabela_retornos)[["Média","Mediana","Maior","Menor"]]
-        # trocando indice pelas colunas e arredondando o valor para duas casas decimais 
-        stats_a = stats_a.transpose().round(2)
-        #Definindo paleta de cores para o heatmap 
-        #Plotando HEATMAP com resumo estatístico
-        plot_estatistica(stats_a,cor_padrao)
-        st.markdown("---")
-        
-        #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
-        stats_b = estatistica(tabela_retornos)[["Positivos", "Negativos"]]
-        plot_postivio_negativo(stats_b)   
-        st.markdown("---") 
-        
-
-
+      
 ##################################################################################
 ##################################################################################
 ##################################################################################
