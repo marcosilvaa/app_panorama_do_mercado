@@ -393,8 +393,8 @@ def analise_quant(option):
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Fonte Yahoo Finance")
         
-    def plot_box(DataFrame,height=500):
-        df_boxplot = pd.DataFrame(DataFrame,columns=["Open","High","Low","Close"])
+    def plot_box(DataFrame, columns=["Close"],height=500):
+        df_boxplot = pd.DataFrame(DataFrame,columns=columns)
         df_melt = pd.melt(df_boxplot, var_name='Grupo', value_name='Valores')
         fig = px.violin(df_melt,box=True, x='Grupo', y='Valores', title='Box Plot OHLC')
         st.plotly_chart(fig,use_container_width=True)
@@ -625,7 +625,12 @@ def analise_quant(option):
             plot_postivio_negativo(stats_b)   
             st.markdown("---") 
         
+        
+        #Plotando BOXPLOT -> ViolinPlot
         plot_box(btc)
+        
+        
+        
     if option == "Ethereum":
         st.title("Análise Quantitativa " + option)
         st.markdown("---")
@@ -723,7 +728,9 @@ def analise_quant(option):
             plot_postivio_negativo(stats_b)   
             st.markdown("---") 
             
+            #PLotando BOXPLOT
             plot_box(spx)
+            
         with empresas:
             def load_company():
                 url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" 
@@ -1030,8 +1037,8 @@ def graficos():
 ##################################################################################
 
 def main():
-    with st.container():
-        st.image("btc_whitepaper_wordcloud.png")
+    
+    st.image("btc_whitepaper_wordcloud.png")
     st.sidebar.title("Panorama Cripto")
     st.sidebar.markdown("---")
     lista_menu = ["Home","Panorama", "Gráficos","Análise Quantitativa"]
