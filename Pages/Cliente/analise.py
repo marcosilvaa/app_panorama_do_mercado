@@ -52,10 +52,23 @@ def analise_quant():
             stats = pd.DataFrame()
             stats["Média"] = self.tabela_retornos().mean()
             stats["Mediana"] = self.tabela_retornos().median()
-            stats["Maior"] = self.tabela_retornos().max()
-            stats["Menor"] = self.tabela_retornos().min()
             stats = stats.transpose().round(1)
             return stats
+        
+        def maior_menor(self):
+            maior_menor = pd.DataFrame()
+            maior_menor["Maior"] = self.tabela_retornos().max()
+            maior_menor["Menor"] = self.tabela_retornos().min()
+            maior_menor = maior_menor.transpose().round(2)
+            return maior_menor
+            
+        def volatilidade(self):
+            vol = pd.DataFrame()
+            vol["Volatilidade"] = self.tabela_retornos().std()
+            vol = vol.transpose().round(1)
+            return vol
+
+        
 
         def positivo_negativo(self):
             pos_neg = pd.DataFrame()
@@ -82,15 +95,41 @@ def analise_quant():
         
           # Plotando HEATMAP com Informações estatísticas 
         def plot_estatistica(self, cor_padrao):
-            fig = px.imshow(self.estatistica(),
+            fig1 = px.imshow(self.volatilidade(),
+                    labels=dict(x="Mês", y="Ano",),
+                    x=self.volatilidade().columns,
+                    y=self.volatilidade().index)
+            fig1 = px.imshow(self.volatilidade(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+            fig1.update_layout(width=1000, height=200, font_size=10)
+            fig1.update_layout(font_size=15)
+            fig1.update(layout_coloraxis_showscale=False)
+            st.plotly_chart(fig1,use_container_width=True)
+            
+            fig2 = px.imshow(self.estatistica(),
                     labels=dict(x="Mês", y="Ano",),
                     x=self.estatistica().columns,
                     y=self.estatistica().index)
-            fig = px.imshow(self.estatistica(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-            fig.update_layout(width=1000, height=400, font_size=200)
-            fig.update_layout(font_size=200)
-            fig.update(layout_coloraxis_showscale=True)
-            st.plotly_chart(fig,use_container_width=True)
+            fig2 = px.imshow(self.estatistica(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+            fig2.update_layout(width=1000, height=300, font_size=200)
+            fig2.update_layout(font_size=200)
+            fig2.update(layout_coloraxis_showscale=False)
+            st.plotly_chart(fig2,use_container_width=True)
+                            
+            fig3 = px.imshow(self.maior_menor(),
+                    labels=dict(x="Mês", y="Ano",),
+                    x=self.maior_menor().columns,
+                    y=self.maior_menor().index)
+            fig3 = px.imshow(self.maior_menor(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+            fig3.update_layout(width=1000, height=300, font_size=200)
+            fig3.update_layout(font_size=200)
+            fig3.update(layout_coloraxis_showscale=False)
+            st.plotly_chart(fig3,use_container_width=True)
+            
+            
+            
+            
+            
+            
             st.caption("Fonte Yahoo Finance")
     
             # Plotando Gráfico de BARRAS para comparação entre meses Positivos X Negativos
@@ -123,7 +162,7 @@ def analise_quant():
             # plotando figura
             st.plotly_chart(fig,use_container_width=True)    
                 
-
+    #Criando abas 
     btc, eth, spx, dxy = st.tabs(["Bitcoin", "Ethereum", "SPX", "DXY"])
     with btc:
         
@@ -291,9 +330,7 @@ def analise_quant():
             #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
             btc_c4.plot_postivio_negativo()   
             st.markdown("---") 
-        
-        
-        
+              
     with eth: 
         
         #Plotando Gráfico do Ethereum
@@ -323,10 +360,7 @@ def analise_quant():
 
         #plotando gráfico de barras com o percentual de resultados positivos e negativos de cada mês
         eth_t.plot_postivio_negativo()   
-        st.markdown("---") 
-        
-    
-        
+        st.markdown("---")     
         
     with spx:
 
@@ -356,8 +390,6 @@ def analise_quant():
         #PLotando BOXPLOT
         #plot_box(spx)
         
-        
-        
         ###########################################
         def load_company():
             url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" 
@@ -379,7 +411,7 @@ def analise_quant():
     with dxy:
         st.write("DXY")
         
-        dxy = yf.download("DX-Y.NYB", period="max", interval="1d")
+        dxy = yf.download("DX-Y.NYB", period="30y", interval="1d")
         
         dxy = Dados(dxy)
         
