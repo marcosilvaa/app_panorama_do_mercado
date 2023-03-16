@@ -10,238 +10,689 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-    # Panorama -> Screener dos principais ativos e índices do mercado
+
+fear_and_greed = """
+
+<img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="Latest Crypto Fear & Greed Index" />
+
+"""
+
+eua_widget = """
+
+    <!-- TradingView Widget BEGIN -->
+    <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+    {
+    "colorTheme": "dark",
+    "dateRange": "12M",
+    "showChart": false,
+    "locale": "en",
+    "largeChartUrl": "",
+    "isTransparent": true,
+    "showSymbolLogo": true,
+    "showFloatingTooltip": true,
+    "width": "100%",
+    "height": "400",
+    "tabs": [
+        {
+        "title": "Indices",
+        "symbols": [
+            {
+            "s": "INDEX:DXY"
+            },
+            {
+            "s": "OANDA:SPX500USD"
+            },
+            {
+            "s": "NASDAQ:NDX"
+            },
+            {
+            "s": "FOREXCOM:DJI"
+            },
+            {
+            "s": "CAPITALCOM:RTY"
+            },
+            {
+            "s": "CAPITALCOM:VIX"
+            }
+        ],
+        "originalTitle": "Indices"
+        }
+    ]
+    }
+    </script>
+    </div>
+    <!-- TradingView Widget END -->
+"""
+
+europa_widget = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "400",
+"tabs": [
+    {
+    "title": "Indices",
+    "symbols": [
+        {
+        "s": "FXOPEN:ESX50"
+        },
+        {
+        "s": "VANTAGE:DAX40"
+        },
+        {
+        "s": "GLOBALPRIME:ES35"
+        },
+        {
+        "s": "INDEX:CAC40"
+        },
+        {
+        "s": "VANTAGE:FTSE100"
+        },
+        {
+        "s": "INDEX:SMI"
+        }
+    ],
+    "originalTitle": "Indices"
+    }
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+"""
+
+asia_widget = """
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "400",
+"tabs": [
+{
+  "title": "Indices",
+  "symbols": [
+    {
+      "s": "HSI:HSI"
+    },
+    {
+      "s": "SPREADEX:AUS"
+    },
+    {
+      "s": "BSE:SENSEX"
+    },
+    {
+      "s": "HNX:HNXINDEX"
+    },
+    {
+      "s": "SKILLING:CHINA50"
+    },
+    {
+      "s": "INDEX:STI"
+    }
+  ],
+  "originalTitle": "Indices"
+}
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+
+"""
+
+commodity_widget = """
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "400",
+"tabs": [
+{
+  "title": "Futures",
+  "symbols": [
+    {
+      "s": "COMEX:GC1!",
+      "d": "Gold"
+    },
+    {
+      "s": "NYMEX:CL1!",
+      "d": "Crude Oil"
+    },
+    {
+      "s": "NYMEX:NG1!",
+      "d": "Natural Gas"
+    },
+    {
+      "s": "CBOT:ZC1!",
+      "d": "Corn"
+    },
+    {
+      "s": "CBOT:ZS1!"
+    },
+    {
+      "s": "COMEX:TIO1!"
+    }
+  ],
+  "originalTitle": "Futures"
+}
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+
+
+"""
+
+cripto_widget = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "500",
+"tabs": [
+{
+  "title": "Indices",
+  "symbols": [
+    {
+      "s": "BINANCE:BTCUSDT"
+    },
+    {
+      "s": "BINANCE:ETHUSDT"
+    },
+    {
+      "s": "BINANCE:ADAUSDT"
+    },
+    {
+      "s": "BINANCE:BNBUSDT"
+    },
+    {
+      "s": "BINANCE:AGIXUSDT"
+    },
+    {
+      "s": "KUCOIN:SDAOUSDT"
+    },
+    {
+      "s": "BINANCE:APEUSDT"
+    },
+    {
+      "s": "BINANCE:GMXUSDT"
+    }
+  ],
+  "originalTitle": "Indices"
+}
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+
+"""
+
+cripto_widget1 = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "1600",
+"tabs": [
+{
+  "title": "Indices",
+  "symbols": [
+    {
+      "s": "BINANCE:BTCUSDT"
+    },
+    {
+      "s": "BINANCE:ETHUSDT"
+    },
+    {
+      "s": "BINANCE:ADAUSDT"
+    },
+    {
+      "s": "BINANCE:BNBUSDT"
+    },
+    {
+      "s": "BINANCE:AGIXUSDT"
+    },
+    {
+      "s": "KUCOIN:SDAOUSDT"
+    },
+    {
+      "s": "BINANCE:MATICUSDT"
+    },
+    {
+      "s": "BINANCE:SNXUSDT"
+    },
+    {
+      "s": "BINANCE:CRVUSDT"
+    },
+    {
+      "s": "BINANCE:GMXUSDT"
+    },
+    {
+      "s": "LINKUSDT"
+    },
+    {
+      "s": "BINANCE:LDOUSDT"
+    },
+    {
+      "s": "BINANCE:APEUSDT"
+    },
+    {
+      "s": "BINANCE:PAXGUSDT"
+    },
+    {
+      "s": "BINANCE:SOLUSDT"
+    },
+    {
+      "s": "BINANCE:DOTUSDT"
+    },
+    {
+      "s": "BINANCE:TRXUSDT"
+    },
+    {
+      "s": "BINANCE:CHZUSDT"
+    },
+    {
+      "s": "BINANCE:ZILUSDT"
+    },
+    {
+      "s": "BINANCE:1INCHUSDT"
+    },
+    {
+      "s": "BINANCE:DYDXUSDT"
+    },
+    {
+      "s": "BINANCE:OPUSDT"
+    },
+    {
+      "s": "BINANCE:MKRUSDT"
+    }
+    
+  ],
+  "originalTitle": "Indices"
+}
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+
+"""
+
+cripto_widget2 = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+{
+"colorTheme": "dark",
+"dateRange": "12M",
+"showChart": false,
+"locale": "en",
+"largeChartUrl": "",
+"isTransparent": true,
+"showSymbolLogo": true,
+"showFloatingTooltip": true,
+"width": "100%",
+"height": "1600",
+"tabs": [
+{
+  "title": "Indices",
+  "symbols": [
+    {
+      "s": "BINANCE:UNIUSDT"
+    },
+    {
+      "s": "BINANCE:LTCUSDT"
+    },
+    {
+      "s": "BINANCE:FILUSDT"
+    },
+    {
+      "s": "BINANCE:APTUSDT"
+    },
+    {
+      "s": "BINANCE:XLMUSDT"
+    },
+    {
+      "s": "BINANCE:NEARUSDT"
+    },
+    {
+      "s": "OKX:CROUSDT"
+    },
+    {
+      "s": "BINANCE:HBARUSDT"
+    },
+    {
+      "s": "BINANCE:VETUSDT"
+    },
+    {
+      "s": "BINANCE:ICPUSDT"
+    },
+    {
+      "s": "BINANCE:ALGOUSDT"
+    },
+    {
+      "s": "BINANCE:QNTUSDT"
+    },
+    {
+      "s": "BINANCE:GRTUSDT"
+    },
+    {
+      "s": "BINANCE:STXUSDT"
+    },
+    {
+      "s": "BINANCE:FTMUSDT"
+    },
+    {
+      "s": "BINANCE:EOSUSDT"
+    },
+    {
+      "s": "BINANCE:MANAUSDT"
+    },
+    {
+      "s": "BINANCE:AAVEUSDT"
+    },
+    {
+      "s": "BINANCE:XTZUSDT"
+    },
+    {
+      "s": "BINANCE:IMXUSDT"
+    },
+    {
+      "s": "BINANCE:AXSUSDT"
+    },
+    {
+      "s": "BINANCE:SANDUSDT"
+    },
+    {
+      "s": "KUCOIN:KCSUSDT"
+    }
+  ],
+  "originalTitle": "Indices"
+}
+]
+}
+</script>
+</div>
+<!-- TradingView Widget END -->
+
+"""
+
+forex_widget = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+  {
+  "colorTheme": "dark",
+  "dateRange": "12M",
+  "showChart": false,
+  "locale": "en",
+  "largeChartUrl": "",
+  "isTransparent": true,
+  "showSymbolLogo": true,
+  "showFloatingTooltip": false,
+  "width": "100%",
+  "height": "500",
+  "tabs": [
+    {
+      "title": "Forex",
+      "symbols": [
+        {
+          "s": "FX:EURUSD",
+          "d": "EUR/USD"
+        },
+        {
+          "s": "FX:GBPUSD",
+          "d": "GBP/USD"
+        },
+        {
+          "s": "FX:USDJPY",
+          "d": "USD/JPY"
+        },
+        {
+          "s": "FX:USDCHF",
+          "d": "USD/CHF"
+        },
+        {
+          "s": "FX_IDC:BRLUSD"
+        },
+        {
+          "s": "FX_IDC:USDBRL"
+        }
+      ],
+      "originalTitle": "Forex"
+    }
+  ]
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+"""
+
+calendario_widget = """
+
+<iframe src="https://sslecal2.investing.com?ecoDayFontColor=%23000000&columns=exc_flags,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone&countries=110,17,29,25,32,6,37,36,26,5,22,39,14,48,10,35,7,43,38,4,12,72&calType=day&timeZone=12&lang=12"
+width="100%" height="467" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
+"""
+
+grafico_widget = """
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div id="tradingview_13d9d"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+  new TradingView.widget(
+  {
+  "width": 450,
+  "height": 600,
+  "symbol": "INDEX:BTCUSD",
+  "interval": "D",
+  "timezone": "Etc/UTC",
+  "theme": "dark",
+  "style": "1",
+  "locale": "en",
+  "toolbar_bg": "#f1f3f6",
+  "enable_publishing": false,
+  "allow_symbol_change": true,
+  "save_image": false,
+  "container_id": "tradingview_13d9d"
+}
+  );
+  </script>
+</div>
+<!-- TradingView Widget END -->
+    """
+
+btc_card_widget = """
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/BTCUSD/?exchange=INDEX" rel="noopener" target="_blank"><span class="blue-text">Bitcoin rates</span></a> by TradingView</div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js" async>
+  {
+  "symbol": "INDEX:BTCUSD",
+  "width": "100%",
+  "locale": "en",
+  "colorTheme": "dark",
+  "isTransparent": true
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+"""  
+
+spx_card_widget = """
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/FOREXCOM-SPXUSD/" rel="noopener" target="_blank"><span class="blue-text">SPXUSD quotes</span></a> by TradingView</div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js" async>
+  {
+  "symbol": "FOREXCOM:SPXUSD",
+  "width": "100%",
+  "locale": "en",
+  "colorTheme": "dark",
+  "isTransparent": true
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+"""
+
+dxy_card_widget = """
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/CAPITALCOM-DXY/" rel="noopener" target="_blank"><span class="blue-text">DXY quotes</span></a> by TradingView</div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js" async>
+  {
+  "symbol": "CAPITALCOM:DXY",
+  "width": "100%",
+  "locale": "en",
+  "colorTheme": "dark",
+  "isTransparent": true
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+"""
+  
+  
+  # Panorama -> Screener dos principais ativos e índices do mercado
 def panorama():
     st.title("Panorama Do Mercado")
-    st.markdown(date.today().strftime("%d/%m/%Y"))
-    st.markdown("---")
-    st.subheader("Índices")
-
-    # Dicionário de Índices
-    index_tck = {
-        "Crypto200": "^CMC200",
-        "DXY": "DX-Y.NYB",
-        "S&P500": "^GSPC",
-        "Volatility": "^VIX",
-        "NASDAQ": "^IXIC",
-        "NYSE": "^NYA",
-        "FTSE 100": "^FTSE",
-        "Dow Jones Industrial": "^DJI",
-        "Dow Jones Transportes": "^DJT",
-        "HANG SENG": "^HSI",
-        "Nikkei 225": "^N225",
-        "DAX": "^GDAXI",
-        "Bovespa": "^BVSP",
-    }
-
-    # Dicionário de Criptomoedas
-    crypto_tck = {
-        "BITCOIN": "BTC-USD",
-        "ETHEREUM": "ETH-USD",
-        "POLYGON": "MATIC-USD",
-        "CHAINLINK": "LINK-USD",
-        "GMX": "GMX-USD",
-        "SYNTHETIX": "SNX-USD",
-        "SINGULARITY DAO": "SDAO-USD",
-        "NUNET": "NTX-USD",
-        "POLKADOT": "DOT-USD",
-    }
-
-    # Dicionário de Juros
-    yeld_tck = {
-        "13 Week Treasury Bill": "^IRX",
-        "5 Years Yeld": "^FVX",
-        "10 Years Yeld": "^TNX",
-        "30 Years Yeld": "^TYX",
-    }
-
-    # Dicionário de Empresas Americanas
-    stocks_tck = {
-        "AAPL": "Apple",
-        "MSFT": "Microsoft",
-        "GOOGL": "Alphabet",
-        "AMZN": "Amazon",
-        "TSLA": "Tesla",
-        "NVDA": "NVIDIA",
-        "XOM": "Exxon Mobil",
-        "META": "Meta Plataforms",
-        "BAC": "Bank of America",
-        "BABA": "Alibaba",
-    }
-
-    # Dicionário de CÂMBIO
-    currency_tck = {
-        "BRLUSD=X": "BRL/USD",
-        "EURUSD=X": "EUR/USD",
-        "GBPUSD=X": "GBP/USD",
-        "BRLEUR=X": "BRL/EUR",
-        "BRLGBP=X": "BRL/GBP",
-    }
-
-    # Dicionário de Commodities
-    commodity_tck = {
-        "CRUDE OIL": "CL=F",
-        "OURO": "GC=F",
-        "PRATA": "SI=F",
-        "SOJA": "ZS=F",
-        "MILHO": "ZC=F",
-    }
     
-    
-    # Imprimindo na tela mensagem "Carregando"
-    with st.spinner("Coletando Cotações"):
-        
-        def get_quotes(tickers):
-            data = yf.download(tickers, period="1mo", auto_adjust=True)["Close"]
-            return data
-    
-        # Criando loop para download dos dados
-        # Utilizando a biblioteca YFinance vamos fazer o download para cada item do dicionário
-        
-        
 
-    # Criando dataframe para armazenar as cotacoes de cada item que serão coletados posteriormente
-    # Criando as colunas onde serão armazenados os valores e a variação %
+    geral, criptos, spx, cambio = st.tabs(["Geral", "Criptomoedas","EUA","Câmbio"])
 
-    # dataframe para Index
-    df_index = pd.DataFrame({"Ativo": index_tck.keys(),
-                             "Ticker": index_tck.values()})
-    df_index["Ult.Valor"] = " "
-    df_index["%"] = " "
+    with geral:
+      #Definindo layout 
+      # PLOTANDO CRIPTOS
 
-    # dataframe para Crypto
-    df_crypto = pd.DataFrame({"Ativo": crypto_tck.keys(),
-                             "Ticker": crypto_tck.values()})
-    df_crypto["Ult.Valor"] = " "
-    df_crypto["%"] = " "
+      col1, col2 = st.columns(2)
 
-    # dataframe para Stocks
-    df_stocks = pd.DataFrame({"Ativo": stocks_tck.keys(),
-                             "Ticker": stocks_tck.values()})
-    df_stocks["Ult.Valor"] = " "
-    df_stocks["%"] = " "
+      with col1:
+        st.subheader("Criptomoedas")
+        st.components.v1.html(cripto_widget, height=360)
 
-    # dataframe para Commodity
-    df_commodity = pd.DataFrame({"Ativo": commodity_tck.keys(),
-                                 "Ticker": commodity_tck.values()})
-    df_commodity["Ult.Valor"] = " "
-    df_commodity["%"] = " "
+      with col2:
+        st.subheader("Dólar")
+        st.components.v1.html(forex_widget, height=360)
 
-    # Imprimindo na tela mensagem "Carregando"
-    with st.spinner("Coletando Cotações"):
-        
-        def get_quotes(tickers):
-            data = yf.download(tickers, period="1mo", auto_adjust=True)["Close"]
-            return data
-    
-        # Criando loop para download dos dados
-        # Utilizando a biblioteca YFinance vamos fazer o download para cada item do dicionário
-        
-        
-        count = 0
-        for ticker in index_tck.values():
-            cotacoes = get_quotes(ticker)
-            variacao = ((cotacoes.iloc[-1]/cotacoes.iloc[-2])-1)*100
-            df_index["Ult.Valor"][count] = round(cotacoes.iloc[-1], 2)
-            df_index["%"][count] = round(variacao, 2)
-            count += 1
+      col1, col2= st.columns(2)
+
+      with col1:
+        st.subheader("Comodities")
+        st.components.v1.html(commodity_widget, height=360)
+          
+
+      with col2:
+        st.subheader("EUA")
+        st.components.v1.html(eua_widget, height=360)
+      col1, col2= st.columns(2)
+      
+      with col1:
+        st.subheader("Europa")
+        st.components.v1.html(europa_widget, height=360)
+          
+      with col2:
+        st.subheader("Ásia")
+        st.components.v1.html(asia_widget, height=360)
+          
+      st.markdown("---")
+
+      st.subheader("Calendário Econômico")
+      st.components.v1.html(calendario_widget, height=500)
 
 
-        count = 0
-        for ticker in crypto_tck.values():
-            cotacoes = yf.download(ticker, period="1mo",
-                                   auto_adjust=True)["Close"]
-            variacao = ((cotacoes.iloc[-1] / cotacoes.iloc[-2]) - 1) * 100
-            df_crypto["Ult.Valor"][count] = round(cotacoes.iloc[-1], 3)
-            df_crypto["%"][count] = round(variacao, 2)
-            count += 1
+      st.components.v1.html(grafico_widget, height=700)
+      
+      st.markdown("---")
 
-        count = 0
-        for ticker in commodity_tck.values():
-            cotacoes = yf.download(ticker, period="1mo",
-                                   auto_adjust=True)["Close"]
-            variacao = ((cotacoes.iloc[-1] / cotacoes.iloc[-2]) - 1) * 100
-            df_commodity["Ult.Valor"][count] = round(cotacoes.iloc[-1], 3)
-            df_commodity["%"][count] = round(variacao, 2)
-            count += 1
-        count = 0
+    with criptos:
+        st.components.v1.html(btc_card_widget, height=180)
+        col1, col2 = st.columns(2)
 
-    # PLOTANDO COTAÇÕES
-    # Criando colunas na tela para exibir o valor de cada índice e a variação % do dia
-
-
-    #função que recebe como parâmetro o nome do dataframe para coletar o dado,
-    # e o número da lista do ativo. 
-    def metrica(df, n):
-        st.metric(df["Ativo"][n], df["Ult.Valor"][n], delta=str(df["%"][n]) + "%")
-
-    # PLOTANDO INDICES
-    #Definindo layout 
-    col1, col2, col3, col4 = st.columns(4)
-    with st.container():
         with col1:
-            metrica(df_index,0) #Crypto200
-            metrica(df_index,4) #NASDAQ
-            metrica(df_index,9) #HANGSENG 
-        
+          st.components.v1.html(cripto_widget1, height=1400)
+
         with col2:
-            metrica(df_index,1) 
-            metrica(df_index,5) 
-            metrica(df_index,11)
-            
-        with col3:
-            metrica(df_index,2) 
-            metrica(df_index,6) 
-            metrica(df_index,10)
-            
-        with col4:
-            metrica(df_index,3) 
-            metrica(df_index,7) 
-            metrica(df_index,12) 
-        
-            
-    st.markdown("---")
-    st.subheader("Criptomoedas")
+          st.components.v1.html(cripto_widget2, height=1450)
 
-    # PLOTANDO CRIPTOS
-    # Criando colunas na tela para exibir o valor de cada índice e a variação % do dia
-    # st.write(df_crypto)
-
-    #Definindo layout
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        metrica(df_crypto,0) 
-        metrica(df_crypto,8) 
-
-    with col2:
-        metrica(df_crypto,1) 
-        metrica(df_crypto,5) 
-
-    with col3:
-        metrica(df_crypto,2) 
-        metrica(df_crypto,6) 
-        
-    st.markdown("---")
-
-    col1,col2 = st.columns(2)
+      
     
-    with col1:
-        st.subheader("Commodities")
-        metrica(df_commodity,0) 
-        metrica(df_commodity,1) 
-        metrica(df_commodity,2) 
-        metrica(df_commodity,3) 
-        metrica(df_commodity,4)
-
-        
-    with col2: 
-        st.subheader("Commodities")
-        metrica(df_commodity,0) 
-        metrica(df_commodity,1) 
-        metrica(df_commodity,2) 
-        metrica(df_commodity,3) 
-        metrica(df_commodity,4) 
-    
-    st.markdown("---")
-   
+    with spx:
+      st.components.v1.html(dxy_card_widget, height=160)
+      st.components.v1.html(spx_card_widget, height=160)
+      
+      pass
+    with cambio:
+      pass

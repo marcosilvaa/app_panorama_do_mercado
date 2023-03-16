@@ -11,14 +11,8 @@ import seaborn as sns
 
 
 def analise_quant():
-
     st.title("Análise Quantitativa")
-    st.markdown("---")
 
-
-    ###Criando funções que serão utilizadas 
-    
-    ### RETORNO ---> Essa função criar um dataframe que vai agrupar os valores em ano e mês     
     # Função que realiza o download dos dados do btc
     def load_data(link):
         dataframe = pd.read_csv(
@@ -52,23 +46,18 @@ def analise_quant():
             stats = pd.DataFrame()
             stats["Média"] = self.tabela_retornos().mean()
             stats["Mediana"] = self.tabela_retornos().median()
-            stats = stats.transpose().round(1)
-            return stats
+            return stats.round(1)
         
         def maior_menor(self):
             maior_menor = pd.DataFrame()
             maior_menor["Maior"] = self.tabela_retornos().max()
             maior_menor["Menor"] = self.tabela_retornos().min()
-            maior_menor = maior_menor.transpose().round(2)
-            return maior_menor
+            return maior_menor.round(2)
             
         def volatilidade(self):
             vol = pd.DataFrame()
             vol["Volatilidade"] = self.tabela_retornos().std()
-            vol = vol.transpose().round(1)
-            return vol
-
-        
+            return vol.round(3)
 
         def positivo_negativo(self):
             pos_neg = pd.DataFrame()
@@ -79,6 +68,8 @@ def analise_quant():
             # Mesma lógica, porem agora o método le() vai mostrar os itens menores do que zero
             pos_neg["Negativos"] = round((self.tabela_retornos().le(0).sum()/self.tabela_retornos().count())*100)  
             return pos_neg
+        
+    ##########################################################
 
         # Plotando HEATMAP para retornos % mensais
         def plot_retorno_mensal(self,cor_padrao,width=800,height=800):
@@ -95,41 +86,38 @@ def analise_quant():
         
           # Plotando HEATMAP com Informações estatísticas 
         def plot_estatistica(self, cor_padrao):
-            fig1 = px.imshow(self.volatilidade(),
-                    labels=dict(x="Mês", y="Ano",),
-                    x=self.volatilidade().columns,
-                    y=self.volatilidade().index)
-            fig1 = px.imshow(self.volatilidade(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-            fig1.update_layout(width=1000, height=200, font_size=10)
-            fig1.update_layout(font_size=15)
-            fig1.update(layout_coloraxis_showscale=False)
-            st.plotly_chart(fig1,use_container_width=True)
-            
-            fig2 = px.imshow(self.estatistica(),
-                    labels=dict(x="Mês", y="Ano",),
-                    x=self.estatistica().columns,
-                    y=self.estatistica().index)
-            fig2 = px.imshow(self.estatistica(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-            fig2.update_layout(width=1000, height=300, font_size=200)
-            fig2.update_layout(font_size=200)
-            fig2.update(layout_coloraxis_showscale=False)
-            st.plotly_chart(fig2,use_container_width=True)
+            col1,col2,col3 = st.columns(3)
+            with col1:        
+                fig1 = px.imshow(self.volatilidade(),
+                        labels=dict(x="Mês", y="Ano",),
+                        x=self.volatilidade().columns,
+                        y=self.volatilidade().index)
+                fig1 = px.imshow(self.volatilidade(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+                fig1.update_layout(width=1000, height=600, font_size=10)
+                fig1.update_layout(font_size=20)
+                fig1.update(layout_coloraxis_showscale=False)
+                st.plotly_chart(fig1,use_container_width=True)
+            with col2: 
+                fig2 = px.imshow(self.estatistica(),
+                        labels=dict(x="Mês", y="Ano",),
+                        x=self.estatistica().columns,
+                        y=self.estatistica().index)
+                fig2 = px.imshow(self.estatistica(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+                fig2.update_layout(width=1000, height=600, font_size=10)
+                fig2.update_layout(font_size=20)
+                fig2.update(layout_coloraxis_showscale=False)
+                st.plotly_chart(fig2,use_container_width=True)
+            with col3:            
+                fig3 = px.imshow(self.maior_menor(),
+                        labels=dict(x="Mês", y="Ano",),
+                        x=self.maior_menor().columns,
+                        y=self.maior_menor().index)
+                fig3 = px.imshow(self.maior_menor(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
+                fig3.update_layout(width=1000, height=600, font_size=10)
+                fig3.update_layout(font_size=20)
+                fig3.update(layout_coloraxis_showscale=False)
+                st.plotly_chart(fig3,use_container_width=True)
                             
-            fig3 = px.imshow(self.maior_menor(),
-                    labels=dict(x="Mês", y="Ano",),
-                    x=self.maior_menor().columns,
-                    y=self.maior_menor().index)
-            fig3 = px.imshow(self.maior_menor(), text_auto=True, aspect="auto",color_continuous_scale=cor_padrao)
-            fig3.update_layout(width=1000, height=300, font_size=200)
-            fig3.update_layout(font_size=200)
-            fig3.update(layout_coloraxis_showscale=False)
-            st.plotly_chart(fig3,use_container_width=True)
-            
-            
-            
-            
-            
-            
             st.caption("Fonte Yahoo Finance")
     
             # Plotando Gráfico de BARRAS para comparação entre meses Positivos X Negativos
@@ -137,8 +125,6 @@ def analise_quant():
             fig = px.bar(self.positivo_negativo(), color_discrete_map={'Negativos': 'red', 'Positivos': 'green'})
             st.plotly_chart(fig, use_container_width=True)
             st.caption("Fonte Yahoo Finance")
-            
-    
     
         def plot_candlestick(self):
             # criando figura
@@ -219,26 +205,30 @@ def analise_quant():
             st.markdown("---")
         
         with ciclo1: 
-            st.write("O primeiro ciclo do Bitcoin durou até  o dia 28 de Novembro de 2012")
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.1, 'yellow'], [1.0, 'green']]
             #plotando heatmap com retornos mensais
+            with st.expander("Ciclo 1"):
+                st.write("O primeiro ciclo do Bitcoin durou até  o dia 28 de Novembro de 2012")
             btc_c1.plot_retorno_mensal(cor_padrao,900,500)
             st.markdown("---")
 
         with ciclo2: 
-            st.write("O segundo ciclo do Bitcoin ocorreu entre o dia 28 de Novembro de 2012 até 09 de Julho de 2016")
             #Plotando HEATMAP com retornos % mensais 
             cor_padrao = [[0, 'red'], [0.07, 'yellow'], [1.0, 'green']]
+            with st.expander("Ciclo 2"):
+                st.write("O segundo ciclo do Bitcoin ocorreu entre o dia 28 de Novembro de 2012 até 09 de Julho de 2016")
             #plotando heatmap com retornos mensais
             btc_c2.plot_retorno_mensal(cor_padrao,900,500)
             st.markdown("---")
             
         with ciclo3: 
-            st.write("O terceiro ciclo do Bitcoin ocorreu entre o dia 09 de Julho de 2016 até 11 de Maio de 2020")
             
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.425, 'yellow'], [1.0, 'green']]
+            with st.expander("Ciclo 3"):
+                st.write("O terceiro ciclo do Bitcoin ocorreu entre o dia 09 de Julho de 2016 até 11 de Maio de 2020")
+            
             #plotando heatmap com retornos mensais
             btc_c3.plot_retorno_mensal(cor_padrao,900,500)
             st.markdown("---")
@@ -289,7 +279,7 @@ def analise_quant():
             st.markdown("---")
             
         with ciclo4: 
-            st.write("O quarto ciclo do Bitcoin ocorreu entre o dia 11 de Maio de 2020 e estima-se que vai terminar em Maio de 2024")
+            st.write("O quarto ciclo do Bitcoin iniciou no dia 11 de Maio de 2020 e estima-se que vai terminar em Maio de 2024")
             #Definindo paleta de cores para o heatmap 
             cor_padrao = [[0, 'red'], [0.5, 'yellow'], [1.0, 'green']]
             #Plotando HEATMAP com resumo estatístico
